@@ -1,6 +1,6 @@
 import React from 'react'
 
-function landing_page () {
+function LandingPage () {
   return (
     <section id='landing-page'>
       <div className='container'>
@@ -41,4 +41,4 @@ function landing_page () {
   )
 }
 
-export default landing_page
+export default LandingPage

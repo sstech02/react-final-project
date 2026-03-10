@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
 import './Movies.css'
 
 const Movies = () => {
+  const [searchParams] = useSearchParams()
+
   const [movies, setMovies] = useState([])
-  const [searchValue, setSearchValue] = useState('')
+  const [searchValue, setSearchValue] = useState(
+    searchParams.get('search') || ''
+  )
   const [filter, setFilter] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)

@@ -1,5 +1,5 @@
 import React from 'react'
-import Landing_page from '../../components/landing_page'
+import LandingPage from '../../components/LandingPage'
 import Main from '../../components/main'
 import Footer from '../../components/footer'
 import './Home.css'
@@ -7,7 +7,7 @@ import './Home.css'
 function Home () {
   return (
     <>
-      <Landing_page />
+      <LandingPage />
       <Main />
       <Footer />
     </>

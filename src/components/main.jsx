@@ -1,4 +1,4 @@
-import { Link, useHistory, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import React, { useState } from 'react'
 function Main () {
   const [value, setValue] = useState('')
@@ -14,24 +14,27 @@ function Main () {
               <h1>Movie Searcher</h1>
               <h2>Find your favorite movies</h2>
             </div>
+            <input
+              type='search'
+              className='search-bar'
+              value={value}
+              onChange={handleChange}
+            />
+            {value.length > 0 && (
+              <div className='search-options-wrapper'>
+                <Link to={`MovieSearch?search=${value}`}>
+                  <button className='search-button'>Search</button>
+                </Link>
+              </div>
+            )}
           </div>
-        </div>
-        <input
-          type='search'
-          className='search-bar'
-          value={value}
-          onChange={handleChange}
-        />
-        <div className='search-options-wrapper'>
-          <Link to={{ pathname: '/MovieSearch', state: { value } }}>
-            <button className='search-button'>Search</button>
-          </Link>
         </div>
       </section>
       <section>
         <div className='container'>
-          <i className='fa-solid fa-spinner movies__loading--spinner' />
-          <div className='row'></div>
+          <div className='row'>
+            <i className='fa-solid fa-spinner movies__loading--spinner' />
+          </div>
         </div>
       </section>
     </main>
