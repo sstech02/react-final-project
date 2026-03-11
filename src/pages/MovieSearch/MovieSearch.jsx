@@ -14,21 +14,30 @@ const Movies = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const hasInitialized = useRef(false)
+  const latestRequestId = useRef(0)
 
   //HISTORY DATA
 
   const API_KEY = 'e45154c6'
 
   const fetchMovies = useCallback(async (search = '', sortFilter = '') => {
-    const effectiveSearch = search || searchValue
+    const effectiveSearch = (search || searchValue).trim()
     const effectiveSortFilter = sortFilter || filter
 
+    if (!effectiveSearch) {
+      setMovies([])
+      setError(null)
+      setIsLoading(false)
+      return
+    }
+
+    const requestId = ++latestRequestId.current
     setIsLoading(true)
     setError(null)
 
     try {
       const response = await fetch(
-        `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(
+        `https://www.omdbapi.com/?apikey=${API_KEY}&type=movie&s=${encodeURIComponent(
           effectiveSearch
         )}`
       )
@@ -45,6 +54,9 @@ const Movies = () => {
 
       let movieData = data.Search || []
 
+      // dedupe results by imdbID to avoid duplicates
+      movieData = Array.from(new Map(movieData.map(m => [m.imdbID, m])).values())
+
       // Apply sorting if filter is set
       if (effectiveSortFilter === 'NEW_TO_OLD') {
         movieData = [...movieData].sort((a, b) => {
@@ -60,12 +72,18 @@ const Movies = () => {
         })
       }
 
-      setMovies(movieData)
+      if (requestId === latestRequestId.current) {
+        setMovies(movieData)
+      }
     } catch (err) {
-      setError(err.message)
-      setMovies([])
+      if (requestId === latestRequestId.current) {
+        setError(err.message)
+        setMovies([])
+      }
     } finally {
-      setIsLoading(false)
+      if (requestId === latestRequestId.current) {
+        setIsLoading(false)
+      }
     }
   }, [searchValue, filter])
 
@@ -76,7 +94,6 @@ const Movies = () => {
   const handleFilterChange = event => {
     const newFilter = event.target.value
     setFilter(newFilter)
-    fetchMovies(searchValue, newFilter)
   }
 
   const handleSearchSubmit = event => {
