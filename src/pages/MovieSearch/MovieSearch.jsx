@@ -101,7 +101,7 @@ const Movies = () => {
       fetchMovies()
       hasInitialized.current = true
     }
-  }, [])
+  })
 
   // Debounced search effect
   useEffect(() => {
