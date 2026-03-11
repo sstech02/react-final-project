@@ -12,27 +12,9 @@ function LandingPage () {
               alt=''
             />
             <ul className='nav__link--list'>
-              <li className='nav__link'>
-                <a href='#' className='nav__link--anchor link__hover-effect'>
-                  Home
-                </a>
-              </li>
-              <li className='nav__link'>
-                <a
-                  href='/MovieSearch'
-                  className='nav__link--anchor link__hover-effect'
-                >
-                  Movie Searcher
-                </a>
-              </li>
-              <li className='nav__link'>
-                <a
-                  href='#'
-                  className='nav__link--anchor link__hover-effect contact-btn'
-                >
-                  Contact
-                </a>
-              </li>
+              <li className='nav__link'></li>
+              <li className='nav__link'></li>
+              <li className='nav__link'></li>
             </ul>
           </nav>
         </div>
