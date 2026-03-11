@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import './Movies.css'
@@ -19,14 +19,17 @@ const Movies = () => {
 
   const API_KEY = 'e45154c6'
 
-  const fetchMovies = async (search = searchValue, sortFilter = filter) => {
+  const fetchMovies = useCallback(async (search = '', sortFilter = '') => {
+    const effectiveSearch = search || searchValue
+    const effectiveSortFilter = sortFilter || filter
+
     setIsLoading(true)
     setError(null)
 
     try {
       const response = await fetch(
         `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(
-          search
+          effectiveSearch
         )}`
       )
 
@@ -43,13 +46,13 @@ const Movies = () => {
       let movieData = data.Search || []
 
       // Apply sorting if filter is set
-      if (sortFilter === 'NEW_TO_OLD') {
+      if (effectiveSortFilter === 'NEW_TO_OLD') {
         movieData = [...movieData].sort((a, b) => {
           const yearA = parseInt(a.Year) || 0
           const yearB = parseInt(b.Year) || 0
           return yearB - yearA
         })
-      } else if (sortFilter === 'OLD_TO_NEW') {
+      } else if (effectiveSortFilter === 'OLD_TO_NEW') {
         movieData = [...movieData].sort((a, b) => {
           const yearA = parseInt(a.Year) || 0
           const yearB = parseInt(b.Year) || 0
@@ -64,7 +67,7 @@ const Movies = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [searchValue, filter])
 
   const handleSearchChange = event => {
     setSearchValue(event.target.value)
@@ -80,7 +83,7 @@ const Movies = () => {
     if (event) {
       event.preventDefault()
     }
-    fetchMovies()
+    fetchMovies(searchValue, filter)
   }
 
   const rerouteToMovieDetails = imdbID => {
@@ -98,21 +101,21 @@ const Movies = () => {
   // Initial fetch on component mount
   useEffect(() => {
     if (!hasInitialized.current) {
-      fetchMovies()
+      fetchMovies(searchValue, filter)
       hasInitialized.current = true
     }
-  })
+  }, [fetchMovies, searchValue, filter])
 
   // Debounced search effect
   useEffect(() => {
     const timer = setTimeout(() => {
       if (hasInitialized.current) {
-        fetchMovies()
+        fetchMovies(searchValue, filter)
       }
     }, 500) // 500ms debounce
 
     return () => clearTimeout(timer)
-  }, [searchValue])
+  }, [searchValue, filter, fetchMovies])
 
   return (
     <div className='movies'>
