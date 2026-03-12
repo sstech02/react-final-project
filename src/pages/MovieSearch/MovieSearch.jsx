@@ -20,72 +20,77 @@ const Movies = () => {
 
   const API_KEY = 'e45154c6'
 
-  const fetchMovies = useCallback(async (search = '', sortFilter = '') => {
-    const effectiveSearch = (search || searchValue).trim()
-    const effectiveSortFilter = sortFilter || filter
+  const fetchMovies = useCallback(
+    async (search = '', sortFilter = '') => {
+      const effectiveSearch = (search || searchValue).trim()
+      const effectiveSortFilter = sortFilter || filter
 
-    if (!effectiveSearch) {
-      setMovies([])
-      setError(null)
-      setIsLoading(false)
-      return
-    }
-
-    const requestId = ++latestRequestId.current
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch(
-        `https://www.omdbapi.com/?apikey=${API_KEY}&type=movie&s=${encodeURIComponent(
-          effectiveSearch
-        )}`
-      )
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data = await response.json()
-
-      if (data.Response === 'False') {
-        throw new Error(data.Error || 'No movies found')
-      }
-
-      let movieData = data.Search || []
-
-      // dedupe results by imdbID to avoid duplicates
-      movieData = Array.from(new Map(movieData.map(m => [m.imdbID, m])).values())
-
-      // Apply sorting if filter is set
-      if (effectiveSortFilter === 'NEW_TO_OLD') {
-        movieData = [...movieData].sort((a, b) => {
-          const yearA = parseInt(a.Year) || 0
-          const yearB = parseInt(b.Year) || 0
-          return yearB - yearA
-        })
-      } else if (effectiveSortFilter === 'OLD_TO_NEW') {
-        movieData = [...movieData].sort((a, b) => {
-          const yearA = parseInt(a.Year) || 0
-          const yearB = parseInt(b.Year) || 0
-          return yearA - yearB
-        })
-      }
-
-      if (requestId === latestRequestId.current) {
-        setMovies(movieData)
-      }
-    } catch (err) {
-      if (requestId === latestRequestId.current) {
-        setError(err.message)
+      if (!effectiveSearch) {
         setMovies([])
-      }
-    } finally {
-      if (requestId === latestRequestId.current) {
+        setError(null)
         setIsLoading(false)
+        return
       }
-    }
-  }, [searchValue, filter])
+
+      const requestId = ++latestRequestId.current
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const response = await fetch(
+          `https://www.omdbapi.com/?apikey=${API_KEY}&type=movie&s=${encodeURIComponent(
+            effectiveSearch
+          )}`
+        )
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        if (data.Response === 'False') {
+          throw new Error(data.Error || 'No movies found')
+        }
+
+        let movieData = data.Search || []
+
+        // dedupe results by imdbID to avoid duplicates
+        movieData = Array.from(
+          new Map(movieData.map(m => [m.imdbID, m])).values()
+        )
+
+        // Apply sorting if filter is set
+        if (effectiveSortFilter === 'NEW_TO_OLD') {
+          movieData = [...movieData].sort((a, b) => {
+            const yearA = parseInt(a.Year) || 0
+            const yearB = parseInt(b.Year) || 0
+            return yearB - yearA
+          })
+        } else if (effectiveSortFilter === 'OLD_TO_NEW') {
+          movieData = [...movieData].sort((a, b) => {
+            const yearA = parseInt(a.Year) || 0
+            const yearB = parseInt(b.Year) || 0
+            return yearA - yearB
+          })
+        }
+
+        if (requestId === latestRequestId.current) {
+          setMovies(movieData)
+        }
+      } catch (err) {
+        if (requestId === latestRequestId.current) {
+          setError(err.message)
+          setMovies([])
+        }
+      } finally {
+        if (requestId === latestRequestId.current) {
+          setIsLoading(false)
+        }
+      }
+    },
+    [searchValue, filter]
+  )
 
   const handleSearchChange = event => {
     setSearchValue(event.target.value)
